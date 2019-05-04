@@ -94,12 +94,23 @@ class Window(QWidget):
         Startaddress = int(self.StartingaddresslineEdit.text())
         totalMemory = int(self.totalMemorySize.text())
         Size = int(self.SizeLineEdit.text())
+        found=0
         if Startaddress > totalMemory :
             buttonReply = QMessageBox.question(self, "Hole "+str(self.i), "The start address is out of range" ,QMessageBox.Ok)
         elif Startaddress+Size >totalMemory:
             buttonReply = QMessageBox.question(self, "Hole " + str(self.i), "out of range",QMessageBox.Ok)
         else:
-            self.addHole()
+            for i in self.holes:
+                if Startaddress == i.startAddress:
+                    buttonReply = QMessageBox.question(self,"Hole " + str(self.i), "There is another hole has the same startaddress", QMessageBox.Ok)
+                    found=1
+                    break
+                elif Startaddress > i.startAddress and Startaddress < i.startAddress+i.size:
+                    buttonReply = QMessageBox.question(self, "Hole " + str(self.i), "There is another hole occupies this space", QMessageBox.Ok)
+                    found = 1
+                    break
+            if found==0:
+                self.addHole()
     def addHole(self):
         Startaddress=int(self.StartingaddresslineEdit.text())
         Size =int(self.SizeLineEdit.text())
@@ -179,10 +190,12 @@ class Window(QWidget):
         self.hbox.addWidget(self.groupbox)
         self.firstfit = QRadioButton("first fit")
         self.bestfit = QRadioButton("best fit")
+        self.worstfit = QRadioButton("worst fit")
         self.draw = QPushButton("Draw")
         self.draw.clicked.connect(self.Show)
         vbox.addWidget(self.firstfit)
         vbox.addWidget(self.bestfit)
+        vbox.addWidget(self.worstfit)
         vbox.addWidget(self.draw)
         self.groupbox.setLayout(vbox)
     def Show(self):
@@ -219,6 +232,7 @@ class Window(QWidget):
         totalMemory= int(self.totalMemorySize.text())
         sortedHoles = sorted(self.holes, key=lambda x: x.startAddress, reverse=False)
         smallestHoles=sorted(self.holes, key=lambda x: x.size, reverse=False)
+        largestHoles=sorted(self.holes, key=lambda x: x.size, reverse=True)
         self.failedProcess=list()
         if self.firstfit.isChecked():
             sum = 1
@@ -289,8 +303,7 @@ class Window(QWidget):
                 for i in self.failedProcess:
                     print(i.name + " hasn't found a place in memory")
                     self.SortedDrawingList=i.removeProcess(self.SortedDrawingList)
-
-        else:
+        elif self.bestfit.isChecked():
             sum = 1
             done = 0
             for i in self.proccess:
@@ -314,7 +327,7 @@ class Window(QWidget):
                     if j['startaddress'] == i + x and j['size'] > 0:
                         if x != 0:
                             process = {
-                                'name': "OldProcess" + str(count),
+                                'name': "oldprocess" + str(count),
                                 'parentProcess': 'oldProcess',
                                 'startaddress': i,
                                 'size': x,
@@ -341,7 +354,7 @@ class Window(QWidget):
                     x = x + 1
 
             process = {
-                'name': "OldProcess" + str(count),
+                'name': "oldprocess" + str(count),
                 'parentProcess': 'oldProcess',
                 'startaddress': i,
                 'size': x,
@@ -358,7 +371,74 @@ class Window(QWidget):
                 for i in self.failedProcess:
                     print(i.name + " hasn't found a place in memory")
                     self.SortedDrawingList = i.removeProcess(self.SortedDrawingList)
+        else:
+            sum = 1
+            done = 0
+            for i in self.proccess:
+                lists = i.organizeProcess(largestHoles, self.DrawingList, self.failedProcess)
+                largestHoles = sorted(lists[0], key=lambda x: x.size, reverse=True)
+                self.DrawingList = lists[1]
+                if lists[2] == 1:
+                    self.failedProcess.append(i)
 
+            holeno = 0
+            for i in smallestHoles:
+                self.DrawingList = i.organizeHole(self.DrawingList, holeno)
+                holeno = holeno + 1
+
+            self.SortedDrawingList = sorted(self.DrawingList, key=itemgetter('startaddress'), reverse=False)
+            i = 0
+            x = 0
+            count = 1
+            while (i + x) < totalMemory:
+                for j in self.SortedDrawingList:
+                    if j['startaddress'] == i + x and j['size'] > 0:
+                        if x != 0:
+                            process = {
+                                'name': "oldprocess" + str(count),
+                                'parentProcess': 'oldProcess',
+                                'startaddress': i,
+                                'size': x,
+                                'oldprocess': 1,
+                                'hole': 0,
+                                'segment': 0,
+                                'failed': 0,
+                                'holeno': -1
+                            }
+                            self.DrawingList.append(process)
+                            i = i + x + j['size']
+                            done = 1
+                            count = count + 1
+                            break
+                        else:
+                            i = i + x + j['size']
+                            done = 1
+                            break
+                    else:
+                        done = 0
+                if done == 1:
+                    x = 0
+                else:
+                    x = x + 1
+
+            process = {
+                'name': "oldprocess" + str(count),
+                'parentProcess': 'oldProcess',
+                'startaddress': i,
+                'size': x,
+                'oldprocess': 1,
+                'hole': 0,
+                'segment': 0,
+                'failed': 0,
+                'holeno': -1
+            }
+            self.DrawingList.append(process)
+            self.SortedDrawingList = sorted(self.DrawingList, key=itemgetter('startaddress'), reverse=False)
+
+            if len(self.failedProcess) > 0:
+                for i in self.failedProcess:
+                    print(i.name + " hasn't found a place in memory")
+                    self.SortedDrawingList = i.removeProcess(self.SortedDrawingList)
         self.Draww()
         self.groupbox2.setLayout(self.grid)
         self.scroll2 = QScrollArea()
@@ -456,6 +536,8 @@ class Window(QWidget):
         self.scroll3.setFixedWidth(400)
         self.scroll3.setFixedHeight(700)
         self.hbox.addWidget(self.scroll3)
+    # def externalComp(self):
+
     def restart(self):
         if self.count >0:
             self.scroll3.hide()
