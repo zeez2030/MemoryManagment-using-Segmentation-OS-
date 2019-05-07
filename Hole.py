@@ -1,16 +1,17 @@
 
 
 class Hole:
-    def __init__(self,start,size,name):
+    def __init__(self,start,size,name,holeno):
         self.name=name
         self.size=size
         self.startAddress=start
+        self.holeno=holeno
     def printName(self):
         print(self.name)
     def ChangeSize(self,size):
         self.size=size
 
-    def organizeHole(self,DrawingList,holeno):
+    def organizeHole(self,DrawingList):
         if self.size > 0:
             process = {
                 'name':self.name,
@@ -21,8 +22,8 @@ class Hole:
                 'hole': 1,
                 'segment': 0,
                 'failed': 0,
-                'holeno': holeno
+                'holeno': self.holeno
             }
-
             DrawingList.append(process)
+
         return DrawingList

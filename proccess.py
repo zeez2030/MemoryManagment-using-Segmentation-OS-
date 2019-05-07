@@ -1,4 +1,5 @@
 from segments import Segment
+from Hole import Hole
 
 class Process:
     def __init__(self,arrayOfSegments,noOfSegments,name):
@@ -7,6 +8,7 @@ class Process:
         self.name=name
         self.arrayofSeg=arrayOfSegments
         self.insertSeg(self.arrayofSeg)
+        self.finished=0
 
     def insertSeg(self,arrayofSeg):
         for i in range(self.NoSegments):
@@ -17,6 +19,7 @@ class Process:
     def printName(self):
         print(self.name)
     def organizeProcess(self,sortedHoles,DrawingList,failedProcess):
+        self.finished=1
         sum=1
         failed=0
         while sum > 0:
@@ -83,8 +86,7 @@ class Process:
         while sum>0:
             for i in range(len(SortedDrawingList)):
                 if self.name in SortedDrawingList[i]['name'] :
-                    if SortedDrawingList[i-1]['hole'] == 1 :
-                        print(" in the first if")
+                    if SortedDrawingList[i-1]['hole'] == 1  and i!= 0:
                         SortedDrawingList[i]['startaddress'] =SortedDrawingList[i-1]['startaddress']
                         SortedDrawingList[i]['size'] = SortedDrawingList[i - 1]['size'] + SortedDrawingList[i]['size']
                         if SortedDrawingList[i-1]['holeno']>SortedDrawingList[i]['holeno']:
@@ -121,5 +123,13 @@ class Process:
             for i in SortedDrawingList :
                 if (self.name in i['name']) and i['failed'] ==0:
                     sum=sum+1
+        sortedHoles=list()
+        k=0
+        for i in SortedDrawingList:
+            if i['hole']==1 and i['size']>0:
+                sortedHoles.append(Hole(i['startaddress'],i['size'],i['name'],i['holeno']))
 
-        return SortedDrawingList
+        returnlist=list()
+        returnlist.append(SortedDrawingList)
+        returnlist.append(sortedHoles)
+        return returnlist
