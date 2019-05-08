@@ -93,8 +93,8 @@ class Process:
                             SortedDrawingList[i]['holeno']=SortedDrawingList[i-1]['holeno']
                         SortedDrawingList.pop(i - 1)
                         break
-                    elif i == len(SortedDrawingList) - 1:
-                        if SortedDrawingList[i - 1]['hole'] == 1:
+                    elif i == len(SortedDrawingList) - 1  :
+                        if SortedDrawingList[i - 1]['hole'] == 1 and i!= 0:
                             SortedDrawingList[i]['startaddress'] = SortedDrawingList[i - 1]['startaddress']
                             SortedDrawingList[i]['size'] = SortedDrawingList[i - 1]['size'] + SortedDrawingList[i]['size']
                             if SortedDrawingList[i - 1]['holeno'] > SortedDrawingList[i]['holeno']:

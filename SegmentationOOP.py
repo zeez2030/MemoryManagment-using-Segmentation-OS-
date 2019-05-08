@@ -528,7 +528,7 @@ class Window(QWidget):
 
 
                     elif i == len(self.SortedDrawingList) - 1:
-                        if self.SortedDrawingList[i - 1]['hole'] == 1:
+                        if self.SortedDrawingList[i - 1]['hole'] == 1 and i!=0 :
                             self.SortedDrawingList[i]['startaddress'] = self.SortedDrawingList[i - 1]['startaddress']
                             self.SortedDrawingList[i]['size'] = self.SortedDrawingList[i - 1]['size'] + self.SortedDrawingList[i]['size']
                             if self.SortedDrawingList[i - 1]['holeno'] > self.SortedDrawingList[i]['holeno']:
@@ -579,6 +579,8 @@ class Window(QWidget):
             self.SortedHoles=liist[1]
         else:
             self.removeOldProcess(requiredProcessName)
+
+        
         self.Draww()
         self.scroll2.hide()
         self.count = self.count+1
