@@ -106,21 +106,30 @@ class Window(QWidget):
         self.j = 0
         self.processno = 1
     def check(self):
-        Startaddress = int(self.StartingaddresslineEdit.text())
-        totalMemory = int(self.totalMemorySize.text())
-        Size = int(self.SizeLineEdit.text())
+        Startaddress = float(self.StartingaddresslineEdit.text())
+        Startaddressint = int(Startaddress)
+        totalMemory = float(self.totalMemorySize.text())
+        totalMemoryint=int(totalMemory)
+        Size = float(self.SizeLineEdit.text())
+        Sizeint=int(Size)
         found=0
-        if Startaddress > totalMemory :
+        if Startaddressint > totalMemoryint :
             buttonReply = QMessageBox.question(self, "Hole "+str(self.i), "The start address is out of range" ,QMessageBox.Ok)
-        elif Startaddress+Size >totalMemory:
+        elif Startaddressint+Sizeint >totalMemoryint:
             buttonReply = QMessageBox.question(self, "Hole " + str(self.i), "out of range",QMessageBox.Ok)
+        elif Startaddress!=Startaddressint:
+            buttonReply = QMessageBox.question(self, "Hole " + str(self.i), "Invalid Startaddress please enter only integers", QMessageBox.Ok)
+        elif Size != Sizeint:
+            buttonReply = QMessageBox.question(self, "Hole " + str(self.i),"Invalid Size please enter only integers", QMessageBox.Ok)
+        elif totalMemory!=totalMemoryint:
+            buttonReply = QMessageBox.question(self, "System memory " , "Invalid Memory  please enter only integers",QMessageBox.Ok)
         else:
             for i in self.holes:
-                if Startaddress == i.startAddress:
+                if Startaddressint == i.startAddress:
                     buttonReply = QMessageBox.question(self,"Hole " + str(self.i), "There is another hole has the same startaddress", QMessageBox.Ok)
                     found=1
                     break
-                elif Startaddress > i.startAddress and Startaddress < i.startAddress+i.size:
+                elif Startaddressint > i.startAddress and Startaddressint < i.startAddress+i.size:
                     buttonReply = QMessageBox.question(self, "Hole " + str(self.i), "There is another hole occupies this space", QMessageBox.Ok)
                     found = 1
                     break
@@ -340,7 +349,8 @@ class Window(QWidget):
             self.SortedDrawingList = sorted(self.DrawingList, key=itemgetter('startaddress'), reverse=False)
 
             while len(self.failedProcess) > 0:
-                print(self.failedProcess[0].name + " hasn't found a place in memory")
+                # print(self.failedProcess[0].name + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System", self.failedProcess[0].name + " hasn't found a place in memory",QMessageBox.Ok)
                 rest = self.failedProcess[0].removeProcess(self.SortedDrawingList)
                 self.SortedDrawingList = rest[0]
                 self.SortedHoles = rest[1]
@@ -411,7 +421,8 @@ class Window(QWidget):
             self.SortedDrawingList = sorted(self.DrawingList, key=itemgetter('startaddress'), reverse=False)
 
             while len(self.failedProcess) > 0:
-                print(self.failedProcess[0].name + " hasn't found a place in memory")
+                # print(self.failedProcess[0].name + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System",self.failedProcess[0].name + " hasn't found a place in memory",QMessageBox.Ok)
                 rest = self.failedProcess[0].removeProcess(self.SortedDrawingList)
                 self.SortedDrawingList = rest[0]
                 self.SortedHoles = rest[1]
@@ -480,7 +491,8 @@ class Window(QWidget):
             self.SortedDrawingList = sorted(self.DrawingList, key=itemgetter('startaddress'), reverse=False)
 
             while len(self.failedProcess) > 0:
-                print(self.failedProcess[0].name + " hasn't found a place in memory")
+                # print(self.failedProcess[0].name + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System",self.failedProcess[0].name + " hasn't found a place in memory", QMessageBox.Ok)
                 rest = self.failedProcess[0].removeProcess(self.SortedDrawingList)
                 self.SortedDrawingList = rest[0]
                 self.SortedHoles = rest[1]
@@ -503,7 +515,8 @@ class Window(QWidget):
                     button.setMaximumHeight(i['size'] + 20)
                     self.grid.addWidget(button)
             else:
-                print(i['name'] + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System", i['name'] + " hasn't found a place in memory",QMessageBox.Ok)
+                # print(i['name'] + " hasn't found a place in memory")
     def removeOldProcess(self, requiredProcess):
 
         for i in self.SortedDrawingList:
@@ -580,7 +593,7 @@ class Window(QWidget):
         else:
             self.removeOldProcess(requiredProcessName)
 
-        
+
         self.Draww()
         self.scroll2.hide()
         self.count = self.count+1
@@ -617,7 +630,10 @@ class Window(QWidget):
                 self.SortedDrawingList = sorted(i.organizeHole(self.SortedDrawingList), key=itemgetter('startaddress'),
                                                 reverse=False)
             while len(self.failedProcess) > 0:
-                print(self.failedProcess[0].name + " hasn't found a place in memory")
+                # print(self.failedProcess[0].name + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System",
+                                                   self.failedProcess[0].name + " hasn't found a place in memory",
+                                                   QMessageBox.Ok)
                 list=self.failedProcess[0].removeProcess(self.SortedDrawingList)
                 self.SortedDrawingList = list[0]
                 self.SortedHoles=list[1]
@@ -643,7 +659,10 @@ class Window(QWidget):
                 self.SortedDrawingList = sorted(i.organizeHole(self.SortedDrawingList), key=itemgetter('startaddress'),
                                                 reverse=False)
             while len(self.failedProcess) > 0:
-                print(self.failedProcess[0].name + " hasn't found a place in memory")
+                # print(self.failedProcess[0].name + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System",
+                                                   self.failedProcess[0].name + " hasn't found a place in memory",
+                                                   QMessageBox.Ok)
                 list = self.failedProcess[0].removeProcess(self.SortedDrawingList)
                 self.SortedDrawingList = list[0]
                 self.SortedHoles = list[1]
@@ -669,7 +688,10 @@ class Window(QWidget):
                 self.SortedDrawingList = sorted(i.organizeHole(self.SortedDrawingList), key=itemgetter('startaddress'),
                                                 reverse=False)
             while len(self.failedProcess) > 0:
-                print(self.failedProcess[0].name + " hasn't found a place in memory")
+                # print(self.failedProcess[0].name + " hasn't found a place in memory")
+                buttonReply = QMessageBox.question(self, "System",
+                                                   self.failedProcess[0].name + " hasn't found a place in memory",
+                                                   QMessageBox.Ok)
                 list = self.failedProcess[0].removeProcess(self.SortedDrawingList)
                 self.SortedDrawingList = list[0]
                 self.SortedHoles = list[1]
