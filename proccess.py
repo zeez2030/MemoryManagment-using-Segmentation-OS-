@@ -19,6 +19,8 @@ class Process:
     def printName(self):
         print(self.name)
     def organizeProcess(self,sortedHoles,DrawingList,failedProcess):
+
+
         self.finished=1
         sum=1
         failed=0
